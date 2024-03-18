@@ -1,59 +1,77 @@
+# import necessary packages
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 import streamlit as st
-import pickle
+import pandas as pd
 import numpy as np
+import pickle
 
 
-xgb_cl = pickle.load(open('classifier.sav','rb'))
+### *********** THE MODEL ******************
+# random seed
+seed = 42
+# Read original dataset
+iris_df = pd.read_csv("data/Iris.csv")
+iris_df.sample(frac=1, random_state=seed)
 
-# Define the Streamlit app interface
-def main():
-    st.title("Depression Prediction App")
+# selecting features and target data
+X = iris_df[['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']]
+y = iris_df[['Species']]
 
-    # Add input fields for features
-    pr = st.number_input("Pr")
-    frate = st.number_input("Frate")
-    favrg = st.number_input("Favrg")
-    time = st.number_input("Time")
-    vtotal = st.number_input("Vtotal")
-    fmax = st.number_input("Fmax")
-    tmax = st.number_input("Tmax")
-    sno = st.number_input("SNO")
+# split data into train and test sets
+# 70% training and 30% test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=seed, stratify=y)
 
-    # Create a button to trigger prediction
-    if st.button("Predict"):
-        # Make prediction
-        features = np.array([[pr, frate, favrg, time, vtotal, fmax, tmax, sno]])
-        prediction = xgb_cl.predict(features)[0]
-        
-        # Display prediction
-        if prediction == 0:
-            st.write("Predicted class: Benign Prostatic Hyperplasia (BPH)")
-        elif prediction == 1:
-            st.write("Predicted class: Benign Prostatic Hyperplasia (Benign Prostatic Hyperplasia (BPH))")
-        elif prediction == 2:
-            st.write("Predicted class: Bladder tightening procedure")
-        elif prediction == 3:
-            st.write("Predicted class: Cystectomy")
-        elif prediction == 4:
-            st.write("Predicted class: Decreased detrusor activity")
-        elif prediction == 5:
-            st.write("Predicted class: Interstitial cystitis")
-        elif prediction == 6:
-            st.write("Predicted class: Neurogenic bladder")
-        elif prediction == 7:
-            st.write("Predicted class: Normal urine flow")
-        elif prediction == 8:
-            st.write("Predicted class: Prostatectomy")
-        elif prediction == 9:
-            st.write("Predicted class: Ureter correction")
-        elif prediction == 10:
-            st.write("Predicted class: Urethral obstruction")
-        elif prediction == 11:
-            st.write("Predicted class: Urethral stricture")
-        elif prediction == 12:
-            st.write("Predicted class: Urinary incontinence surgery")
-        elif prediction == 13:
-            st.write("Predicted class: Vesicoureteral reflux")
+# create an instance of the random forest classifier
+clf = RandomForestClassifier(n_estimators=100)
 
-if __name__ == "__main__":
-    main()
+# train the classifier on the training data
+clf.fit(X_train, y_train)
+
+# predict on the test set
+y_pred = clf.predict(X_test)
+
+# calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy}")  # Accuracy: 0.91
+
+# save the model to disk
+pickle.dump(clf, open("rf_model.sav", 'wb'))
+
+
+## ******************* THE web APP ************************
+# title and description:
+st.title('Classifying Iris Flowers')
+st.markdown('Toy model to play with the iris flowers dataset and classify the three Species into \
+     (setosa, versicolor, virginica) based on their sepal/petal \
+    and length/width.')
+
+# features sliders for the four plant features:
+st.header("Plant Features")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.text("Sepal characteristics")
+    sepal_l = st.slider('Sepal lenght (cm)', 1.0, 8.0, 0.5)
+    sepal_w = st.slider('Sepal width (cm)', 2.0, 4.4, 0.5)
+
+with col2:
+    st.text("Pepal characteristics")
+    petal_l = st.slider('Petal lenght (cm)', 1.0, 7.0, 0.5)
+    petal_w = st.slider('Petal width (cm)', 0.1, 2.5, 0.5)
+
+st.text('')
+
+# prediction button
+if st.button("Predict type of Iris"):
+    result = clf.predict(np.array([[sepal_l, sepal_w, petal_l, petal_w]]))
+    st.text(result[0])
+
+
+st.text('')
+st.text('')
+st.markdown(
+    '`Initial code was developed by` [santiviquez](https://twitter.com/santiviquez) | \
+         `Code modification and update by:` [Mohamed Alie](https://github.com/Kmohamedalie/iris-streamlit/tree/main)')
