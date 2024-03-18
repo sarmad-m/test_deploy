@@ -2,9 +2,8 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# Load the trained XGBoost model
-pickle_in = open("classifier.pkl", "rb")
-xgb_cl = pickle.load(pickle_in)
+
+xgb_cl = pickle.load(open('trained_model.sav','rb'))
 
 # Define the Streamlit app interface
 def main():
