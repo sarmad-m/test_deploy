@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 # Load the trained XGBoost model
-pickle_in = open("C:/Users/sarma/Downloads/tran/depression/classifier.pkl", "rb")
+pickle_in = open("classifier.pkl", "rb")
 xgb_cl = pickle.load(pickle_in)
 
 # Define the Streamlit app interface
