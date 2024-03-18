@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 
 
-xgb_cl = pickle.load(open('trained_model.sav','rb'))
+xgb_cl = pickle.load(open('classifier.sav','rb'))
 
 # Define the Streamlit app interface
 def main():
