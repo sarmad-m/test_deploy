@@ -1,61 +1,9 @@
-# import necessary packages
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-import streamlit as st
-import pandas as pd
-import numpy as np
-import pickle
 import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import PowerTransformer
-from sklearn.metrics import accuracy_score,classification_report
-from sklearn.model_selection import train_test_split
-### *********** THE MODEL ******************
-# random seed
-train=pd.read_csv("Urineflowmeterdata.csv")
-np.unique(train['class'],return_counts=True)
-features=train.loc[:, 'Pr':'SNO']
-
-classes= train['class']
-
-le=LabelEncoder()
-classes= le.fit_transform(classes)
-
-
-
-sc=StandardScaler()
-columns_to_scale=['Pr',	'Frate',	'Favrg',	'Time',	'Vtotal',	'Fmax'	,'Tmax',	'SNO']
-train[columns_to_scale]=sc.fit_transform(train[columns_to_scale])
-
-y=classes
-X=train[columns_to_scale]
-X_train,X_test,y_train, y_test= train_test_split(X , y,test_size=0.1,stratify=classes,random_state=40)
-
-
-rf_classifier = RandomForestClassifier()
-
-y_pred = rf_classifier.predict(X_test)
-
-
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy: {accuracy}")  # Accuracy: 0.91
-
-# save the model to disk
-pickle.dump(rf_classifier, open("rf_model.pkl", 'wb'))
-
-
-
-
-
-## ******************* THE web APP ************************
-
 
 # Load the saved model
 model = pickle.load(open("rf_model.pkl", "rb"))
