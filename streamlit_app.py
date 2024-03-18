@@ -8,21 +8,17 @@ from sklearn.preprocessing import StandardScaler
 # Load the saved model
 model = pickle.load(open("rf_model.pkl", "rb"))
 
-# Define a function to preprocess new input data
 def preprocess_data(data):
-    le = LabelEncoder()
-    data["class"] = le.fit_transform(data["class"])
-
+    # No need to transform 'class' here (already done during training)
     scaler = StandardScaler()
     columns_to_scale = ['Pr', 'Frate', 'Favrg', 'Time', 'Vtotal', 'Fmax', 'Tmax', 'SNO']
     data[columns_to_scale] = scaler.fit_transform(data[columns_to_scale])
-
-    return data.drop("class", axis=1)  # Drop 'class' column for prediction
+    return data
 
 # Create a Streamlit app
 st.title("Urine Flowmeter Prediction App")
 
-# Collect user input
+# Collect user input (assuming no 'class' input needed)
 with st.form("form"):
     Pr = st.slider("Pr", min_value=0, max_value=100, step=1)
     Frate = st.number_input("Frate")
@@ -35,7 +31,7 @@ with st.form("form"):
     submitted = st.form_submit_button("Predict")
 
 if submitted:
-    # Preprocess input data
+    # Preprocess input data (no transformation for 'class')
     new_data = pd.DataFrame([[Pr, Frate, Favrg, Time, Vtotal, Fmax, Tmax, SNO]], columns=['Pr', 'Frate', 'Favrg', 'Time', 'Vtotal', 'Fmax', 'Tmax', 'SNO'])
     processed_data = preprocess_data(new_data)
 
