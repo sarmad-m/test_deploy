@@ -7,43 +7,55 @@ import pandas as pd
 import numpy as np
 import pickle
 
-
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import PowerTransformer
+from sklearn.metrics import accuracy_score,classification_report
+from sklearn.model_selection import train_test_split
 ### *********** THE MODEL ******************
 # random seed
-seed = 42
-# Read original dataset
-iris_df = pd.read_csv("Iris.csv")
-iris_df.sample(frac=1, random_state=seed)
+train=pd.read_csv("D:/Data/Urineflowmeterdata.csv")
+np.unique(train['class'],return_counts=True)
+features=train.loc[:, 'Pr':'SNO']
 
-# selecting features and target data
-X = iris_df[['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']]
-y = iris_df[['Species']]
+classes= train['class']
 
-# split data into train and test sets
-# 70% training and 30% test
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=seed, stratify=y)
+le=LabelEncoder()
+classes= le.fit_transform(classes)
 
-# create an instance of the random forest classifier
-clf = RandomForestClassifier(n_estimators=100)
 
-# train the classifier on the training data
-clf.fit(X_train, y_train)
 
-# predict on the test set
-y_pred = clf.predict(X_test)
+sc=StandardScaler()
+columns_to_scale=['Pr',	'Frate',	'Favrg',	'Time',	'Vtotal',	'Fmax'	,'Tmax',	'SNO']
+train[columns_to_scale]=sc.fit_transform(train[columns_to_scale])
+
+y=classes
+X=train[columns_to_scale]
+X_train,X_test,y_train, y_test= train_test_split(X , y,test_size=0.1,stratify=classes,random_state=40)
+
+
+rf_classifier = RandomForestClassifier()
+param_grid = {'n_estimators': [50, 100,],'max_depth': [None, 10,],'min_samples_split': [2, 5],'min_samples_leaf': [1,]}
+grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=10, scoring='neg_log_loss', n_jobs=-1)
+grid_search.fit(X_train, y_train)
+print("Best Hyperparameters:", grid_search.best_params_)
+best_rf_model = grid_search.best_estimator_
+y_pred = best_rf_model.predict(X_test)
 
 # calculate accuracy
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy}")  # Accuracy: 0.91
 
 # save the model to disk
-pickle.dump(clf, open("rf_model.sav", 'wb'))
+pickle.dump(best_rf_model, open("rf_model.sav", 'wb'))
+
+
+
 
 
 ## ******************* THE web APP ************************
 # title and description:
-st.title('Classifying Iris Flowers')
+st.title('Classifying  ')
 st.markdown('Toy model to play with the iris flowers dataset and classify the three Species into \
      (setosa, versicolor, virginica) based on their sepal/petal \
     and length/width.')
