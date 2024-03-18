@@ -40,19 +40,15 @@ X_train,X_test,y_train, y_test= train_test_split(X , y,test_size=0.1,stratify=cl
 
 
 rf_classifier = RandomForestClassifier()
-param_grid = {'n_estimators': [50, 100,],'max_depth': [None, 10,],'min_samples_split': [2, 5],'min_samples_leaf': [1,]}
-grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, cv=10, scoring='neg_log_loss', n_jobs=-1)
-grid_search.fit(X_train, y_train)
-print("Best Hyperparameters:", grid_search.best_params_)
-best_rf_model = grid_search.best_estimator_
-y_pred = best_rf_model.predict(X_test)
 
-# calculate accuracy
+y_pred = rf_classifier.predict(X_test)
+
+
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy}")  # Accuracy: 0.91
 
 # save the model to disk
-pickle.dump(best_rf_model, open("rf_model.pkl", 'wb'))
+pickle.dump(rf_classifier, open("rf_model.pkl", 'wb'))
 
 
 
