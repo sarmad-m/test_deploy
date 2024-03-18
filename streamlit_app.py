@@ -36,7 +36,7 @@ if submitted:
     processed_data = preprocess_data(new_data)
 
     # Make prediction
-    prediction = model.predict(processed_data)[0]
+    prediction = model.predict(processed_data)
 
     # Display the predicted class
     st.write("Predicted Class:", prediction)
