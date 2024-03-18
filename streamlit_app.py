@@ -6,7 +6,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-
+import streamlit as st
+import pandas as pd
+import numpy as np
+import pickle
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import PowerTransformer
@@ -14,7 +19,7 @@ from sklearn.metrics import accuracy_score,classification_report
 from sklearn.model_selection import train_test_split
 ### *********** THE MODEL ******************
 # random seed
-train=pd.read_csv("D:/Data/Urineflowmeterdata.csv")
+train=pd.read_csv("Urineflowmeterdata.csv")
 np.unique(train['class'],return_counts=True)
 features=train.loc[:, 'Pr':'SNO']
 
@@ -47,43 +52,51 @@ accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy}")  # Accuracy: 0.91
 
 # save the model to disk
-pickle.dump(best_rf_model, open("rf_model.sav", 'wb'))
+pickle.dump(best_rf_model, open("rf_model.pkl", 'wb'))
 
 
 
 
 
 ## ******************* THE web APP ************************
-# title and description:
-st.title('Classifying  ')
-st.markdown('Toy model to play with the iris flowers dataset and classify the three Species into \
-     (setosa, versicolor, virginica) based on their sepal/petal \
-    and length/width.')
-
-# features sliders for the four plant features:
-st.header("Plant Features")
-col1, col2 = st.columns(2)
-
-with col1:
-    st.text("Sepal characteristics")
-    sepal_l = st.slider('Sepal lenght (cm)', 1.0, 8.0, 0.5)
-    sepal_w = st.slider('Sepal width (cm)', 2.0, 4.4, 0.5)
-
-with col2:
-    st.text("Pepal characteristics")
-    petal_l = st.slider('Petal lenght (cm)', 1.0, 7.0, 0.5)
-    petal_w = st.slider('Petal width (cm)', 0.1, 2.5, 0.5)
-
-st.text('')
-
-# prediction button
-if st.button("Predict type of Iris"):
-    result = clf.predict(np.array([[sepal_l, sepal_w, petal_l, petal_w]]))
-    st.text(result[0])
 
 
-st.text('')
-st.text('')
-st.markdown(
-    '`Initial code was developed by` [santiviquez](https://twitter.com/santiviquez) | \
-         `Code modification and update by:` [Mohamed Alie](https://github.com/Kmohamedalie/iris-streamlit/tree/main)')
+# Load the saved model
+model = pickle.load(open("rf_model.pkl", "rb"))
+
+# Define a function to preprocess new input data
+def preprocess_data(data):
+    le = LabelEncoder()
+    data["class"] = le.fit_transform(data["class"])
+
+    scaler = StandardScaler()
+    columns_to_scale = ['Pr', 'Frate', 'Favrg', 'Time', 'Vtotal', 'Fmax', 'Tmax', 'SNO']
+    data[columns_to_scale] = scaler.fit_transform(data[columns_to_scale])
+
+    return data.drop("class", axis=1)  # Drop 'class' column for prediction
+
+# Create a Streamlit app
+st.title("Urine Flowmeter Prediction App")
+
+# Collect user input
+with st.form("form"):
+    Pr = st.slider("Pr", min_value=0, max_value=100, step=1)
+    Frate = st.number_input("Frate")
+    Favrg = st.number_input("Favrg")
+    Time = st.number_input("Time")
+    Vtotal = st.number_input("Vtotal")
+    Fmax = st.number_input("Fmax")
+    Tmax = st.number_input("Tmax")
+    SNO = st.number_input("SNO")
+    submitted = st.form_submit_button("Predict")
+
+if submitted:
+    # Preprocess input data
+    new_data = pd.DataFrame([[Pr, Frate, Favrg, Time, Vtotal, Fmax, Tmax, SNO]], columns=['Pr', 'Frate', 'Favrg', 'Time', 'Vtotal', 'Fmax', 'Tmax', 'SNO'])
+    processed_data = preprocess_data(new_data)
+
+    # Make prediction
+    prediction = model.predict(processed_data)[0]
+
+    # Display the predicted class
+    st.write("Predicted Class:", prediction)
