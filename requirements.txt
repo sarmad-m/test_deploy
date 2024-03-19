@@ -1,9 +1,5 @@
-numpy
 streamlit
-matplotlib
 pandas
-pickle
+numpy
 scikit-learn
-
-
-
+imbalanced-learn
