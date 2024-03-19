@@ -5,7 +5,7 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 
 # Load the saved model
-model = pickle.load(open("best_rf_model.pkl", "rb"))
+model = pickle.load(open("classifier.sav", "rb"))
 
 def preprocess_data(data):
     scaler = StandardScaler()
