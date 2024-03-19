@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import StandardScaler
 
 # Load the saved model
-model = pickle.load(open("best_rf_model.pkl", "rb"))
+model = pickle.load(open("rf_model.pkl", "rb"))
 
 def preprocess_data(data):
     # No need to transform 'class' here (already done during training)
