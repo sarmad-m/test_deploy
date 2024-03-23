@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 # Load the saved model
-iris = pickle.load(open('best_rf_model.pkl','rb'))
+model = pickle.load(open('best_rf_model.pkl','rb'))
 
 # Title and description
 st.title('Predict Urine Flowmeter')
@@ -20,12 +20,11 @@ Fmax = float(st.number_input("Fmax"))
 Tmax = float(st.number_input("Tmax"))
 SNO = float(st.number_input("SNO"))
 
-# Prediction button
-if st.button("Predict"):
-    # Make prediction
-    input_data = np.array(['Pr',	'Frate',	'Favrg',	'Time',	'Vtotal',	'Fmax'	,'Tmax',	'SNO'])
-    prediction = model.predict(input_data)
-    st.write("Predicted Class:", prediction[0])
 
-st.text('')
-st.text('')
+
+btn = st.button("Predict")
+if btn:
+	pred = model.predict(np.array([Pr,Frate,Favrg,Time,Vtotal,Fmax,Tmax,SNO]).reshape(1,-1))
+	s = 'It is '+ pred
+	st.subheader(s)
+		
