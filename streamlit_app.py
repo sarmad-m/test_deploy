@@ -29,4 +29,3 @@ if st.button("Predict"):
 
 st.text('')
 st.text('')
-st.markdown(
